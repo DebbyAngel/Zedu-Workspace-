@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Zedu Workspace - Cohort 15</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#0B0911;
+    --win:#100E18;
+    --header:#1E1B2E;
+    --panel:#12101C;
+    --card:#14111F;
+    --line:rgba(255,255,255,.07);
+    --accent:#5F5FE1;
+    --amber:#F59E0B;
+    --green:#34D399;
+    --text:#EDEBF7;
+    --muted:#8E89A8;
+    --dim:#6F6A8A;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(900px 520px at 12% -8%, rgba(95,95,225,.20), transparent 62%),
+      radial-gradient(760px 460px at 92% 4%, rgba(245,158,11,.07), transparent 60%),
+      #0B0911;
+    color:var(--text);
+    font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:radial-gradient(rgba(255,255,255,.055) 1px, transparent 1px);
+    background-size:22px 22px;
+    mask-image:linear-gradient(180deg, rgba(0,0,0,.55), transparent 78%);
+  }
+  .mono{font-family:var(--mono)}
+  ::selection{background:rgba(95,95,225,.45);color:#fff}
+  button{font-family:inherit}
+  .shell{position:relative;z-index:1;display:flex;flex-direction:column;height:100vh;min-height:760px;padding:14px 18px 16px;gap:10px}
+
+  /* ---------- page chrome / annotations ---------- */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex:0 0 auto}
+  .brandmark{
+    width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(145deg,#6E6EEA,#4A3FC8);color:#fff;font-weight:700;font-size:13px;
+    box-shadow:0 6px 18px -8px rgba(95,95,225,.9), inset 0 1px 0 rgba(255,255,255,.25);
+  }
+  .spec-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;flex:1}
+  .spec{
+    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+    color:#9C97B4;border:1px dashed rgba(255,255,255,.16);border-radius:999px;
+    padding:3px 8px;white-space:nowrap;background:rgba(255,255,255,.02);
+  }
+  .spec.amber{border-color:rgba(245,158,11,.45);color:#F0C878}
+  .live-chip{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#B7B2CC;white-space:nowrap}
+  .live-dot{width:6px;height:6px;border-radius:99px;background:var(--green);box-shadow:0 0 0 3px rgba(52,211,153,.14);animation:breathe 2.6s ease-in-out infinite}
+  @keyframes breathe{0%,100%{opacity:1}50%{opacity:.35}}
+
+  /* ---------- browser window ---------- */
+  .window{
+    flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;
+    background:var(--win);border:1px solid rgba(255,255,255,.09);border-radius:14px;
+    box-shadow:0 40px 90px -40px rgba(0,0,0,.95), 0 0 0 1px rgba(0,0,0,.4), 0 2px 0 rgba(255,255,255,.05) inset;
+  }
+  .chrome{height:38px;flex:0 0 38px;display:flex;align-items:center;gap:12px;padding:0 12px;background:#171422;border-bottom:1px solid var(--line)}
+  .lights{display:flex;gap:6px;flex:0 0 auto}
+  .lights i{width:10px;height:10px;border-radius:99px;display:block}
+  .tab{
+    display:flex;align-items:center;gap:8px;height:26px;padding:0 10px;border-radius:7px 7px 0 0;
+    background:#100E18;border:1px solid var(--line);border-bottom-color:transparent;
+    font-size:11px;color:#DCD8EC;max-width:270px;white-space:nowrap;overflow:hidden;
+  }
+  .tab .fav{width:13px;height:13px;border-radius:4px;display:grid;place-items:center;font-size:8px;font-weight:700;background:linear-gradient(145deg,#6E6EEA,#4A3FC8);color:#fff}
+  .urlbar{
+    flex:1;max-width:520px;height:24px;display:flex;align-items:center;gap:7px;padding:0 9px;border-radius:6px;
+    background:#0D0B14;border:1px solid rgba(255,255,255,.06);font-family:var(--mono);font-size:10px;color:#8B86A4;
+  }
+  .chrome-tools{display:flex;align-items:center;gap:9px;margin-left:auto;color:#5F5A75;font-size:12px}
+
+  /* ---------- zone 1 header ---------- */
+  .apphead{
+    height:56px;flex:0 0 56px;background:#1E1B2E;border-bottom:1px solid rgba(255,255,255,.07);
+    display:flex;align-items:center;gap:14px;padding:0 14px;position:relative;z-index:30;
+  }
+  .hash{color:#8B87A3;font-size:19px;font-weight:500;margin-right:-6px}
+  .head-title{font-size:15px;font-weight:600;letter-spacing:-.01em;color:#fff;white-space:nowrap}
+  .badge-hng{
+    font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.08em;color:#CFCBFF;
+    background:rgba(95,95,225,.2);border:1px solid rgba(139,135,255,.45);border-radius:5px;padding:2px 6px;
+  }
+  .searchwrap{flex:1;display:flex;justify-content:center;padding:0 6px;min-width:0}
+  .searchbar{position:relative;width:100%;max-width:440px}
+  .searchbar input{
+    width:100%;height:32px;border-radius:7px;background:#171427;border:1px solid rgba(255,255,255,.1);
+    padding:0 56px 0 30px;color:#E9E6F6;font-size:12px;outline:none;transition:.16s;
+  }
+  .searchbar input::placeholder{color:#7C7796}
+  .searchbar input:focus{border-color:rgba(139,135,255,.7);box-shadow:0 0 0 3px rgba(95,95,225,.18);background:#1A1730}
+  .searchbar svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#7C7796}
+  .kbd{
+    position:absolute;right:7px;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:9px;color:#8B86A4;border:1px solid rgba(255,255,255,.12);
+    border-radius:4px;padding:2px 4px;background:rgba(255,255,255,.03);
+  }
+  .presence{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#C3BFD6;white-space:nowrap}
+  .presence .dot{width:6px;height:6px;border-radius:99px;background:var(--green);box-shadow:0 0 0 3px rgba(52,211,153,.15)}
+  .canvas-toggle{
+    display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 11px;border-radius:7px;
+    font-size:11.5px;font-weight:600;color:#FDE6B0;background:rgba(245,158,11,.1);
+    border:1px solid rgba(245,158,11,.85);
+    box-shadow:0 0 0 1px rgba(245,158,11,.12), 0 0 20px -8px rgba(245,158,11,.75);
+    cursor:pointer;transition:.18s;white-space:nowrap;
+  }
+  .canvas-toggle:hover{background:rgba(245,158,11,.16)}
+  .canvas-toggle[aria-pressed="false"]{
+    color:#A9A4C2;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.14);box-shadow:none;
+  }
+  .canvas-toggle:focus-visible{outline:2px solid #FCD34D;outline-offset:2px}
+
+  /* ---------- zone 2 main ---------- */
+  .main{flex:1 1 auto;min-height:0;display:flex;background:#0F0D18}
+  .sidebar{
+    width:260px;flex:0 0 260px;min-height:0;display:flex;flex-direction:column;
+    background:#12101C;border-right:1px solid var(--line);
+  }
+  .ws{display:flex;align-items:center;gap:9px;padding:12px;border-bottom:1px solid var(--line)}
+  .ws .tile{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;background:linear-gradient(145deg,#6E6EEA,#463AC4);font-size:12px;font-weight:700;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+  .side-scroll{flex:1;min-height:0;overflow-y:auto;padding:10px 8px 4px}
+  .side-label{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#6F6A8A;
+    padding:0 8px;margin:2px 0 5px;
+  }
+  .chan,.dm{
+    width:100%;display:flex;align-items:center;gap:8px;text-align:left;
+    padding:6px 8px;border-radius:6px;border:1px solid transparent;background:transparent;
+    color:#B9B4CE;font-size:12.5px;cursor:pointer;transition:.12s;
+  }
+  .chan:hover,.dm:hover{background:rgba(255,255,255,.045);color:#EAE7F6}
+  .chan .h{color:#7E7995;font-size:14px;width:12px;flex:0 0 12px}
+  .chan.active{background:rgba(95,95,225,.18);border-color:rgba(95,95,225,.4);color:#fff;font-weight:600}
+  .chan.active .h{color:#A9A5FF}
+  .chan:focus-visible,.dm:focus-visible{outline:2px solid #8B87FF;outline-offset:1px}
+  .unread{
+    margin-left:auto;font-family:var(--mono);font-size:9px;font-weight:600;color:#0E0B16;
+    background:#C7C2E8;border-radius:99px;min-width:16px;height:16px;padding:0 4px;display:grid;place-items:center;
+  }
+  .unread.hot{background:var(--amber);color:#231603}
+  .dm .av{width:22px;height:22px;border-radius:7px;flex:0 0 22px;display:grid;place-items:center;font-size:9px;font-weight:700;color:#fff}
+  .dm .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dm .live-tag{
+    margin-left:auto;font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;color:#FCD34D;
+    border:1px solid rgba(245,158,11,.45);border-radius:4px;padding:1px 4px;background:rgba(245,158,11,.1);
+  }
+  .side-foot{border-top:1px solid var(--line);padding:9px 10px;display:flex;align-items:center;gap:8px}
+  .me{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;background:#2A2540;color:#DDD9F0;font-size:9.5px;font-weight:700;border:1px solid rgba(255,255,255,.1)}
+
+  .feed-wrap{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;background:#0F0D18}
+  .feed-top{
+    flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:8px 16px;border-bottom:1px solid var(--line);
+  }
+  .topic{display:flex;align-items:center;gap:7px;min-width:0;font-size:11.5px;color:#A9A4C2}
+  .topic .pin{color:#8B87A3}
+  .topic .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip{
+    font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:#B5B0E8;
+    border:1px solid rgba(95,95,225,.35);background:rgba(95,95,225,.12);border-radius:4px;padding:2px 5px;white-space:nowrap;
+  }
+  .feed{flex:1 1 auto;min-height:0;overflow-y:auto;padding:14px 16px 6px;display:flex;flex-direction:column;gap:13px;scroll-behavior:smooth;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 18px);mask-image:linear-gradient(180deg,transparent 0,#000 18px)}
+  .date-rule{display:flex;align-items:center;gap:10px;color:#6F6A8A;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase}
+  .date-rule::before,.date-rule::after{content:"";height:1px;background:rgba(255,255,255,.06);flex:1}
+  .msg{display:flex;gap:9px;align-items:flex-start}
+  .msg.own{flex-direction:row-reverse}
+  .avatar{
+    width:28px;height:28px;flex:0 0 28px;border-radius:8px;display:grid;place-items:center;
+    font-size:9.5px;font-weight:700;color:#fff;letter-spacing:.02em;border:1px solid rgba(255,255,255,.12);
+  }
+  .msg-col{min-width:0;max-width:min(660px,88%)}
+  .meta{display:flex;align-items:center;gap:7px;margin-bottom:3px;font-size:10px;color:#7E7995}
+  .msg.own .meta{justify-content:flex-end}
+  .meta .name{font-size:11.5px;font-weight:600;color:#D3CEE6}
+  .meta .agent-badge{font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:#C6C2FF;border:1px solid rgba(139,135,255,.4);border-radius:3px;padding:1px 3px}
+  .meta .t{font-family:var(--mono);font-size:9.5px}
+  .bubble{
+    background:#171424;border:1px solid rgba(255,255,255,.065);border-radius:3px 11px 11px 11px;
+    padding:8px 11px;font-size:12.5px;line-height:1.55;color:#D9D5E9;overflow-wrap:anywhere;
+  }
+  .msg.own .bubble{background:rgba(95,95,225,.17);border-color:rgba(95,95,225,.38);border-radius:11px 3px 11px 11px}
+  .bubble code{font-family:var(--mono);font-size:10.5px;color:#C9C4F5;background:rgba(255,255,255,.07);padding:1px 4px;border-radius:3px}
+  .msg.ziki .bubble{background:linear-gradient(170deg,rgba(95,95,225,.22),rgba(95,95,225,.07));border-color:rgba(95,95,225,.45)}
+  .msg.ziki .avatar{background:linear-gradient(145deg,#7C7CFF,#4A3FC8)}
+  .canvas-link{
+    margin-top:7px;display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;
+    color:#D7D3FF;border:1px solid rgba(139,135,255,.45);background:rgba(95,95,225,.16);
+    border-radius:5px;padding:3px 7px;cursor:pointer;
+  }
+  .canvas-link:hover{background:rgba(95,95,225,.26)}
+  .sys{
+    display:flex;align-items:center;justify-content:center;gap:7px;text-align:center;
+    font-size:10.5px;color:#8B86A4;font-style:italic;
+  }
+  .sys .spark{color:#C0BCFF;font-style:normal}
+  .typing{display:flex;align-items:center;gap:7px;font-size:10px;color:#716C88;padding:1px 0 3px 37px}
+  .typing i{width:4px;height:4px;border-radius:99px;background:#7B76A0;display:block;animation:blink 1.3s infinite}
+  .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+  @keyframes blink{0%,60%,100%{opacity:.25}30%{opacity:1}}
+  .composer{flex:0 0 auto;border-top:1px solid var(--line);padding:9px 14px 11px;background:#0E0C16}
+  .composer-box{
+    display:flex;align-items:center;gap:9px;background:#171424;border:1px solid rgba(255,255,255,.09);
+    border-radius:8px;padding:0 8px 0 11px;height:36px;transition:.16s;
+  }
+  .composer-box:focus-within{border-color:rgba(139,135,255,.6);box-shadow:0 0 0 3px rgba(95,95,225,.13)}
+  .composer-box input{flex:1;min-width:0;background:transparent;border:0;outline:none;color:#E6E2F3;font-size:12px}
+  .composer-box input::placeholder{color:#726D8B}
+  .icon-btn{background:transparent;border:0;color:#807B99;cursor:pointer;display:grid;place-items:center;padding:4px;border-radius:5px}
+  .icon-btn:hover{color:#CFCBE6;background:rgba(255,255,255,.05)}
+  .send-btn{
+    width:26px;height:26px;border-radius:6px;border:0;display:grid;place-items:center;
+    background:#5F5FE1;color:#fff;cursor:pointer;box-shadow:0 4px 14px -6px rgba(95,95,225,.9);
+  }
+  .send-btn:hover{background:#6E6EEA}
+
+  /* ---------- zone 3 canvas ---------- */
+  .canvas-panel{
+    width:420px;flex:0 0 420px;min-height:0;display:flex;flex-direction:column;
+    background:#100E1A;border-left:1px solid rgba(95,95,225,.4);
+    transition:width .24s ease, flex-basis .24s ease, opacity .18s ease, border-color .2s;
+    overflow:hidden;
+  }
+  .canvas-panel.collapsed{width:0;flex-basis:0;opacity:0;border-left-width:0;pointer-events:none}
+  .panel-inner{width:420px;flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  .panel-head{flex:0 0 auto;padding:10px 13px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(95,95,225,.1),rgba(95,95,225,0))}
+  .panel-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#fff;letter-spacing:-.005em}
+  .panel-title .z{width:19px;height:19px;border-radius:6px;display:grid;place-items:center;background:linear-gradient(145deg,#7C7CFF,#4A3FC8);font-size:10px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+  .panel-sub{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:5px;font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:#8A85A4}
+  .panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:10px 13px 11px;display:flex;flex-direction:column;gap:6px}
+
+  .progress-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+  .eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8E89A8}
+  .progress-val{font-size:11.5px;font-weight:600;color:#F3F0FF;white-space:nowrap}
+  .bar{position:relative;height:7px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;border:1px solid rgba(255,255,255,.05)}
+  .bar-fill{height:100%;width:66%;border-radius:99px;background:linear-gradient(90deg,#4A46D8,#8B8BFF);transition:width .12s linear}
+  .bar-mark{position:absolute;top:-2px;bottom:-2px;left:66%;width:1px;background:rgba(245,158,11,.85);box-shadow:0 0 6px rgba(245,158,11,.8)}
+  .bar-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px}
+  .timer{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;color:#A49FBE}
+  .timer b{font-weight:600;color:#E8E4FA;letter-spacing:.02em}
+  .exec-chip{
+    display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;
+    padding:2px 6px;border-radius:4px;border:1px solid rgba(245,158,11,.4);background:rgba(245,158,11,.1);color:#F7CE86;
+  }
+  .exec-chip.running{border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.1);color:#8CE9C5}
+
+  .card{background:var(--card);border:1px solid rgba(255,255,255,.075);border-radius:9px;padding:9px 10px;position:relative}
+  .card.done{border-color:rgba(52,211,153,.24);background:linear-gradient(175deg,rgba(52,211,153,.055),rgba(20,17,31,0))}
+  .card.active{
+    border:2px solid #F59E0B;padding:8px 9px;
+    background:linear-gradient(175deg,rgba(245,158,11,.11),rgba(20,17,31,.35));
+    box-shadow:0 0 0 3px rgba(245,158,11,.07), 0 18px 34px -26px rgba(245,158,11,.9);
+  }
+  .card.pending{border-style:dashed;border-color:rgba(255,255,255,.14);background:rgba(20,17,31,.5);opacity:.66}
+  .card.pending.unlocked{border-color:rgba(139,135,255,.5);opacity:.85}
+  .card-top{display:flex;align-items:flex-start;gap:8px}
+  .step-icon{
+    width:22px;height:22px;flex:0 0 22px;border-radius:6px;display:grid;place-items:center;margin-top:1px;
+    border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#A9A4C2;font-size:10px;
+  }
+  .step-icon.ok{background:rgba(52,211,153,.14);border-color:rgba(52,211,153,.35);color:#6EE7B7}
+  .step-icon.amber{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.5);color:#FBBF24}
+  .step-title{font-size:11.8px;line-height:1.35;font-weight:600;color:#EFEBFB;letter-spacing:-.005em}
+  .card.pending .step-title{color:#BEB9D0;font-weight:500}
+  .card-badge{
+    margin-left:auto;flex:0 0 auto;font-family:var(--mono);font-size:8px;font-weight:600;letter-spacing:.08em;
+    border-radius:4px;padding:2px 5px;white-space:nowrap;margin-top:1px;
+  }
+  .card-badge.green{color:#8CE9C5;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35)}
+  .card-badge.amber{color:#FCD34D;background:rgba(245,158,11,.14);border:1px solid rgba(245,158,11,.5)}
+  .card-badge.gray{color:#A7A2BC;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14)}
+  .card-badge.indigo{color:#CFCBFF;background:rgba(95,95,225,.18);border:1px solid rgba(139,135,255,.45)}
+
+  .card1-head{display:flex;align-items:flex-start;gap:8px;width:100%;background:transparent;border:0;padding:0;text-align:left;cursor:pointer;color:inherit;border-radius:5px}
+  .card1-head:focus-visible{outline:2px solid #8B87FF;outline-offset:2px}
+  .chev{flex:0 0 auto;color:#7C7796;transition:transform .18s;margin-top:3px}
+  .card1-head[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+  .details{margin-top:7px;padding-top:7px;border-top:1px dashed rgba(255,255,255,.09);display:flex;flex-direction:column;gap:3px}
+  .details[hidden]{display:none}
+  .detail{display:flex;gap:6px;font-size:10px;line-height:1.45;color:#9C97B3}
+  .detail b{font-family:var(--mono);font-weight:500;color:#C6C1DB;font-size:9.5px}
+  .detail .tick{color:#4ADE80;flex:0 0 auto}
+
+  .hint{font-size:10px;line-height:1.45;color:#B39A6F;margin:6px 0 7px 30px}
+  .card.active .hint{color:#CDAE7A}
+  .controls{display:flex;align-items:center;gap:6px;margin-left:30px}
+  .btn{
+    display:inline-flex;align-items:center;gap:5px;height:25px;padding:0 8px;border-radius:6px;
+    font-size:10.5px;font-weight:600;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);
+    color:#E0DCEE;cursor:pointer;transition:.15s;white-space:nowrap;
+  }
+  .btn:hover{background:rgba(255,255,255,.1)}
+  .btn:focus-visible{outline:2px solid #8B87FF;outline-offset:2px}
+  .btn.amber{border-color:rgba(245,158,11,.55);background:rgba(245,158,11,.12);color:#FCD34D}
+  .btn.amber:hover{background:rgba(245,158,11,.2)}
+  .btn.ghost{border-color:rgba(255,255,255,.1);color:#B9B4CE}
+  .btn.indigo{background:#5F5FE1;border-color:#7272EA;color:#fff;box-shadow:0 6px 16px -10px rgba(95,95,225,.95)}
+  .btn.indigo:hover{background:#6E6EEA}
+  .btn.green{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#8CE9C5}
+  .btn[disabled]{opacity:.45;cursor:not-allowed}
+
+  .field{margin-top:8px;margin-left:30px}
+  .field label{display:block;font-family:var(--mono);font-size:9px;line-height:1.5;color:#A9A4C2;margin-bottom:4px}
+  .field label .k{color:#D9D4FF}
+  .field-input{
+    display:flex;align-items:center;gap:6px;height:27px;border-radius:6px;padding:0 8px;
+    background:#0D0B14;border:1px solid rgba(245,158,11,.35);
+  }
+  .field-input:focus-within{border-color:#F59E0B;box-shadow:0 0 0 3px rgba(245,158,11,.14)}
+  .field-input .prompt{color:#6F6A8A;font-family:var(--mono);font-size:10px}
+  .field-input input{
+    flex:1;min-width:0;background:transparent;border:0;outline:none;
+    font-family:var(--mono);font-size:10.5px;color:#F5E4BE;letter-spacing:.01em;
+  }
+  .field-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:5px;margin-left:30px}
+  .field-note{font-size:9px;color:#7E7995;line-height:1.4}
+  .field-note.dirty{color:#F0C878}
+
+  .skeleton{margin:7px 0 12px 30px;display:flex;flex-direction:column;gap:4px}
+  .skeleton i{height:5px;border-radius:99px;background:rgba(255,255,255,.07);display:block}
+  .skeleton i:nth-child(1){width:78%}.skeleton i:nth-child(2){width:46%}.skeleton i:nth-child(3){width:30%}
+  .pending-tag{position:absolute;right:9px;bottom:7px;display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:#8F8AA6}
+
+  .events{margin-top:2px;border:1px dashed rgba(255,255,255,.1);border-radius:8px;padding:7px 9px;background:rgba(255,255,255,.015)}
+  .events-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;color:#7E7995}
+  .event{display:flex;gap:7px;font-size:9.5px;line-height:1.5;color:#A09BB8;padding:1.5px 0}
+  .event .ts{font-family:var(--mono);font-size:8.5px;color:#6F6A8A;flex:0 0 auto;padding-top:1px}
+  .event .dot{width:4px;height:4px;border-radius:99px;background:#5F5FE1;margin-top:5px;flex:0 0 auto}
+  .event.fresh .dot{background:var(--amber);box-shadow:0 0 6px rgba(245,158,11,.8)}
+
+  .panel-foot{flex:0 0 auto;border-top:1px solid rgba(255,255,255,.07);padding:8px 13px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0E0C16}
+  .gate{display:flex;align-items:center;gap:6px;font-size:9.5px;color:#B7B2CC;min-width:0}
+  .gate .dot{width:6px;height:6px;border-radius:99px;background:var(--amber);box-shadow:0 0 0 3px rgba(245,158,11,.14);flex:0 0 auto}
+  .gate.cleared .dot{background:var(--green);box-shadow:0 0 0 3px rgba(52,211,153,.14)}
+  .gate .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .artifact{font-family:var(--mono);font-size:8.5px;color:#7E7995;white-space:nowrap}
+
+  /* ---------- flowchart ---------- */
+  .flow{flex:0 0 auto;border-top:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,#0C0A13,#0A0810);padding:9px 14px 12px}
+  .flow-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .flow-title{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#B4AFCC}
+  .flow-title .sq{width:5px;height:5px;border-radius:1px;background:var(--accent);box-shadow:0 0 8px rgba(95,95,225,.9)}
+  .flow-meta{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:8.5px;color:#6F6A8A;flex-wrap:wrap}
+  .legend{display:inline-flex;align-items:center;gap:4px}
+  .legend i{width:5px;height:5px;border-radius:99px;display:block}
+  .flow-scroll{overflow-x:auto;padding-bottom:2px}
+  .flow-row{display:flex;align-items:stretch;gap:0;min-width:1060px}
+  .fnode{
+    flex:1 1 0;min-width:0;background:#14111E;border:1px solid rgba(255,255,255,.085);border-radius:8px;
+    padding:7px 9px;display:flex;flex-direction:column;gap:4px;transition:.2s;
+  }
+  .fnode:hover{border-color:rgba(255,255,255,.2);transform:translateY(-1px)}
+  .fnode .fidx{display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:8px;letter-spacing:.16em;color:#6F6A8A}
+  .fnode p{margin:0;font-size:10.5px;line-height:1.42;color:#C9C4DC;font-weight:500}
+  .fnode p .tok{font-family:var(--mono);font-size:9.5px;color:#C3BFFF}
+  .fnode .ftag{font-family:var(--mono);font-size:7.5px;letter-spacing:.12em;color:#6F6A8A;margin-top:auto}
+  .fnode.canvas{border-color:rgba(95,95,225,.55);background:linear-gradient(175deg,rgba(95,95,225,.16),rgba(20,17,30,.55))}
+  .fnode.gate{border-color:rgba(245,158,11,.6);background:linear-gradient(175deg,rgba(245,158,11,.13),rgba(20,17,30,.55));box-shadow:0 0 0 1px rgba(245,158,11,.12),0 10px 24px -20px rgba(245,158,11,.9)}
+  .fnode.human{border-style:dashed;border-color:rgba(139,135,255,.4)}
+  .fnode.done{border-color:rgba(52,211,153,.28)}
+  .fnode .fidx .pill{font-size:7px;letter-spacing:.1em;padding:1px 4px;border-radius:3px;border:1px solid rgba(255,255,255,.12);color:#9C97B3}
+  .fnode.gate .fidx .pill{border-color:rgba(245,158,11,.45);background:rgba(245,158,11,.12);color:#FCD34D}
+  .fnode.done .fidx .pill{border-color:rgba(52,211,153,.35);color:#8CE9C5}
+  .farrow{flex:0 0 26px;display:flex;align-items:center;padding:0 2px}
+  .farrow svg{width:100%;height:10px;overflow:visible}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;transition-duration:.001ms !important}
+    .feed{scroll-behavior:auto}
+  }
+  @media (max-width:1180px){
+    .spec-row{display:none}
+    .sidebar{flex-basis:230px;width:230px}
+    .canvas-panel{flex-basis:380px;width:380px}
+    .panel-inner{width:380px}
+  }
+  @media (max-width:980px){
+    .shell{height:auto;min-height:0;padding:12px}
+    .window{min-height:0}
+    .main{flex-direction:column}
+    .sidebar{display:none}
+    .searchwrap{display:none}
+    .presence{display:none}
+    .feed-wrap{min-height:440px}
+    .canvas-panel{width:auto;flex:0 0 auto;border-left:0;border-top:1px solid rgba(95,95,225,.4)}
+    .panel-inner{width:100%}
+    .canvas-panel.collapsed{height:0;flex-basis:0;width:auto;border-top-color:transparent;border-top-width:0}
+    .flow-row{min-width:900px}
+  }
+  @media (max-width:640px){
+    .chrome .urlbar,.chrome .chrome-tools{display:none}
+    .tab{max-width:230px;overflow:hidden}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- page annotation bar -->
+  <div class="topbar">
+    <div class="flex items-center gap-2.5 shrink-0">
+      <div class="brandmark">Z</div>
+      <div class="leading-tight">
+        <div class="text-[11.5px] font-semibold text-[#EDEBF7]">Zedu Design Lab</div>
+        <div class="mono text-[8.5px] tracking-[0.12em] text-[#7E7995] uppercase">Ziki Dynamic Canvas · Wireframe v1.2</div>
+      </div>
+    </div>
+    <div class="spec-row">
+      <span class="spec">Zone 1 · Header 56px</span>
+      <span class="spec">Zone 2 · Sidebar 260px + Feed</span>
+      <span class="spec">Zone 3 · Canvas 420px</span>
+      <span class="spec amber">Flow · 6 Stages</span>
+    </div>
+    <div class="flex items-center gap-3 shrink-0">
+      <span class="live-chip"><span class="live-dot"></span>Live preview</span>
+      <span class="hidden md:inline mono text-[9px] text-[#6F6A8A]">zedu.chat</span>
+    </div>
+  </div>
+
+  <!-- browser window -->
+  <div class="window">
+    <div class="chrome">
+      <div class="lights">
+        <i style="background:#F87171"></i><i style="background:#FBBF24"></i><i style="background:#34D399"></i>
+      </div>
+      <div class="tab">
+        <span class="fav">Z</span>
+        <span>Zedu Workspace - Cohort 15</span>
+        <span class="ml-1 text-[#5F5A75]">×</span>
+      </div>
+      <div class="urlbar">
+        <svg width="9" height="11" viewBox="0 0 10 12" fill="none" aria-hidden="true"><rect x="1" y="5" width="8" height="6" rx="1.4" stroke="#6F6A8A"/><path d="M3 5V3.6A2 2 0 0 1 7 3.6V5" stroke="#6F6A8A"/></svg>
+        <span>zedu.chat/workspace/cohort-15</span>
+        <span class="ml-auto rounded px-1 py-[1px] text-[8px] tracking-widest text-[#8CE9C5] border border-[#34D399]/30 bg-[#34D399]/10">LIVE</span>
+      </div>
+      <div class="chrome-tools">
+        <span>＋</span><span>⌄</span><span>⋯</span>
+      </div>
+    </div>
+
+    <!-- ZONE 1: header -->
+    <header class="apphead">
+      <div class="flex items-center min-w-0 gap-1.5">
+        <span class="hash" id="hashSign">#</span>
+        <h1 id="channelTitle" class="head-title">general-dev</h1>
+        <span class="badge-hng ml-1">HNG15</span>
+        <span class="hidden xl:inline text-[10px] text-[#6F6A8A] ml-1">cohort workspace</span>
+      </div>
+
+      <div class="searchwrap">
+        <div class="searchbar">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <input id="globalSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Search channels, threads, or Ziki..." aria-label="Search channels, threads, or Ziki" />
+          <span class="kbd">⌘K</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 shrink-0">
+        <div class="presence"><span class="dot"></span>142 Online</div>
+        <button id="canvasToggle" class="canvas-toggle" type="button" aria-pressed="true" aria-controls="canvasPanel">
+          <span aria-hidden="true">✨</span> Ziki Canvas <span id="canvasToggleState">[Active]</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ZONE 2 + 3 -->
+    <div class="main">
+      <!-- sidebar -->
+      <aside class="sidebar" aria-label="Channels and direct messages">
+        <div class="ws">
+          <div class="tile">Z</div>
+          <div class="min-w-0 leading-tight">
+            <div class="text-[11.5px] font-semibold text-[#E9E6F6] truncate">Zedu · HNG15</div>
+            <div class="mono text-[8.5px] text-[#7E7995] tracking-[0.08em]">COHORT 15 · 142 MEMBERS</div>
+          </div>
+          <span class="ml-auto text-[#6F6A8A] text-[11px]">⌄</span>
+        </div>
+
+        <div class="side-scroll">
+          <div class="side-label"><span>Channels</span><span>4</span></div>
+          <button class="chan active" type="button" data-channel="general-dev"><span class="h">#</span><span class="nm">general-dev</span></button>
+          <button class="chan" type="button" data-channel="announcements"><span class="h">#</span><span class="nm">announcements</span><span class="unread">3</span></button>
+          <button class="chan" type="button" data-channel="backend-go"><span class="h">#</span><span class="nm">backend-go</span><span class="unread hot">12</span></button>
+          <button class="chan" type="button" data-channel="frontend-react"><span class="h">#</span><span class="nm">frontend-react</span><span class="unread hot">4</span></button>
+
+          <div class="side-label" style="margin-top:12px"><span>Direct messages</span><span>4</span></div>
+          <button class="dm" type="button" data-channel="dm-tunde">
+            <span class="av" style="background:linear-gradient(145deg,#F0A35E,#C2670B)">TA</span>
+            <span class="nm">Tunde A.</span><span class="unread">2</span>
+          </button>
+          <button class="dm" type="button" data-channel="dm-amara">
+            <span class="av" style="background:linear-gradient(145deg,#F472B6,#BE185D)">AO</span>
+            <span class="nm">Amara O.</span><span class="unread">1</span>
+          </button>
+          <button class="dm" type="button" data-channel="dm-ziki">
+            <span class="av" style="background:linear-gradient(145deg,#7C7CFF,#4A3FC8)">✦</span>
+            <span class="nm">Ziki Agent</span><span class="live-tag">CANVAS</span>
+          </button>
+          <button class="dm" type="button" data-channel="dm-chidi">
+            <span class="av" style="background:linear-gradient(145deg,#34D399,#047857)">CK</span>
+            <span class="nm">Chidi K.</span><span class="unread">5</span>
+          </button>
+
+          <div class="side-label" style="margin-top:12px"><span>Active threads</span><span>2</span></div>
+          <a class="chan thread" href="#chatFeed" aria-label="Open thread PR #214 env fix">
+            <span class="h" style="font-size:10px">⌁</span>
+            <span class="nm truncate">PR #214 · env fix</span>
+            <span class="unread" style="background:rgba(255,255,255,.1);color:#B9B4CE">4</span>
+          </a>
+          <a class="chan thread" href="#chatFeed" aria-label="Open thread Week 6 demo day">
+            <span class="h" style="font-size:10px">⌁</span>
+            <span class="nm truncate">Week 6 demo day</span>
+            <span class="unread" style="background:rgba(255,255,255,.1);color:#B9B4CE">2</span>
+          </a>
+        </div>
+
+        <div class="side-foot">
+          <div class="me">DA</div>
+          <div class="min-w-0 leading-tight">
+            <div class="text-[11px] font-medium text-[#D8D4E8] truncate">Deborah A.</div>
+            <div class="text-[9px] text-[#34D399] flex items-center gap-1"><span style="width:4px;height:4px;border-radius:99px;background:#34D399;display:block"></span>Ziki online</div>
+          </div>
+          <span class="ml-auto text-[#6F6A8A] text-[13px]">⚙</span>
+        </div>
+      </aside>
+
+      <!-- feed -->
+      <section class="feed-wrap" aria-label="Channel feed">
+        <div class="feed-top">
+          <div class="topic">
+            <span class="pin" aria-hidden="true">📌</span>
+            <span id="channelTopic" class="txt">PR #214 · fix(env): resolve undefined VITE_SUPABASE_URL</span>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="chip" id="feedCount">6 MESSAGES</span>
+            <span class="chip" style="border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.08);color:#8CE9C5">@ZIKI ACTIVE</span>
+          </div>
+        </div>
+
+        <div id="chatFeed" class="feed" aria-live="polite"></div>
+
+        <form id="composerForm" class="composer" autocomplete="off">
+          <div class="composer-box">
+            <button class="icon-btn" type="button" aria-label="Attach file" tabindex="-1">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M9.5 4.5 5.8 8.2a2.1 2.1 0 0 0 3 3l4-4a3.3 3.3 0 0 0-4.7-4.7L3.7 6.9a4.6 4.6 0 0 0 6.5 6.5l3.3-3.3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </button>
+            <input id="composerInput" type="text" placeholder="Message #general-dev — type @Ziki to invoke the agent" aria-label="Message channel" />
+            <button class="icon-btn" type="button" aria-label="Emoji" tabindex="-1">☺</button>
+            <button class="send-btn" type="submit" aria-label="Send message">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ZONE 3: canvas -->
+      <aside id="canvasPanel" class="canvas-panel" aria-label="Ziki Agent Execution Canvas">
+        <div class="panel-inner">
+          <div class="panel-head">
+            <div class="panel-title">
+              <span class="z" aria-hidden="true">✦</span>
+              Ziki Agent Execution Canvas
+              <span class="ml-auto flex items-center gap-2">
+                <span class="mono text-[8.5px] tracking-[0.1em] text-[#8A85A4]">LIVE</span>
+                <span class="live-dot" style="width:5px;height:5px"></span>
+              </span>
+            </div>
+            <div class="panel-sub">
+              <span>SESSION #ZK-8821 · COHORT 15</span>
+              <span>C_eval <b style="color:#FCD34D;font-weight:600">0.82</b> · HIGH</span>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <!-- progress -->
+            <div>
+              <div class="progress-head">
+                <span class="eyebrow">Task Execution:</span>
+                <span class="progress-val"><span id="progressPct">66</span>% Complete</span>
+              </div>
+              <div class="bar" role="progressbar" aria-label="Task execution" aria-valuemin="0" aria-valuemax="100" aria-valuenow="66" id="progressBarEl">
+                <div id="progressBar" class="bar-fill"></div>
+                <div class="bar-mark" title="Human approval gate"></div>
+              </div>
+              <div class="bar-foot">
+                <span class="timer">Session Timer <b id="sessionTimer">00:04.2s</b></span>
+                <span id="execState" class="exec-chip">PAUSED</span>
+              </div>
+            </div>
+
+            <!-- step 1 -->
+            <article class="card done">
+              <button class="card1-head" id="step1Toggle" type="button" aria-expanded="false" aria-controls="step1Details">
+                <span class="step-icon ok" aria-hidden="true">
+                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3.2 8.4 6.4 11.6 12.8 4.8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="flex-1 min-w-0">
+                  <span class="step-title block">Step 1: Parse Pull Request &amp; Build Logs</span>
+                </span>
+                <span class="card-badge green">COMPLETED (0.4s)</span>
+                <svg class="chev" width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="details" id="step1Details" hidden>
+                <div class="detail"><span class="tick">✓</span><span><b>2 build logs parsed</b> — 4,218 lines · failing step <b>bun run build</b> @ 00:41</span></div>
+                <div class="detail"><span class="tick">✓</span><span>Detected undefined ENV <b>VITE_SUPABASE_URL</b> at <b>src/lib/env-urls.ts:42</b></span></div>
+                <div class="detail"><span class="tick">✓</span><span>Thread context attached: PR #214 · 3 reviewers · branch <b>fix/env-resolution</b></span></div>
+              </div>
+            </article>
+
+            <!-- step 2 -->
+            <article class="card active" id="step2Card">
+              <div class="card-top">
+                <span class="step-icon amber" aria-hidden="true">⚠</span>
+                <span class="flex-1 min-w-0">
+                  <span class="step-title block">Step 2: Inspect Dependency Configuration</span>
+                </span>
+              </div>
+              <div class="card-top" style="margin-top:5px">
+                <span class="card-badge amber" id="step2Badge">PAUSED BY USER / AWAITING INPUT</span>
+              </div>
+              <p class="hint">Two valid resolution orders found for <b class="mono text-[9.5px]">envPath</b>. Agent paused before mutating config — a human must confirm intent.</p>
+
+              <div class="controls">
+                <button class="btn amber" id="pauseResume" type="button" aria-label="Pause or resume step 2">
+                  <svg width="9" height="9" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path id="pauseIcon" d="M5 3.5 12 8l-7 4.5v-9Z" fill="currentColor"/></svg>
+                  <span id="pauseLabel">Resume</span>
+                </button>
+                <button class="btn ghost" id="stepBack" type="button">
+                  <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 4 2.5 7.5 6 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.8 7.5h6.4a3.4 3.4 0 0 1 0 6.8H7.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                  Step-Back
+                </button>
+                <span class="ml-auto mono text-[8px] tracking-[0.1em] text-[#8A6A3A]">2 / 3</span>
+              </div>
+
+              <div class="field">
+                <label for="overrideInput">Context Override: filepath = 'src/lib/env-urls.ts'</label>
+                <div class="field-input">
+                  <span class="prompt" aria-hidden="true">›</span>
+                  <input id="overrideInput" type="text" value="'src/lib/env-urls.ts'" spellcheck="false" autocomplete="off" aria-label="Context override filepath" />
+                </div>
+              </div>
+              <div class="field-foot">
+                <span class="field-note" id="overrideNote">Editable · staged for human approval</span>
+                <button class="btn indigo" id="approveBtn" type="button">Approve override</button>
+              </div>
+            </article>
+
+            <!-- step 3 -->
+            <article class="card pending" id="step3Card" aria-disabled="true">
+              <div class="card-top">
+                <span class="step-icon" aria-hidden="true">
+                  <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><rect x="3.5" y="7" width="9" height="6" rx="1.4" stroke="currentColor"/><path d="M5.5 7V5.4a2.5 2.5 0 0 1 5 0V7" stroke="currentColor"/></svg>
+                </span>
+                <span class="flex-1 min-w-0">
+                  <span class="step-title block">Step 3: Generate Optimized Fix &amp; Commit Patch</span>
+                </span>
+                <span class="card-badge gray" id="step3Badge">PENDING APPROVAL</span>
+              </div>
+              <div class="skeleton" aria-hidden="true"><i></i><i></i><i></i></div>
+              <div class="pending-tag"><span aria-hidden="true">◌</span><span id="step3Tag">Queued behind gate G-02</span></div>
+            </article>
+
+            <!-- events -->
+            <div class="events" aria-live="polite">
+              <div class="events-head"><span>Event stream</span><span id="eventCount">3</span></div>
+              <div id="eventLog" class="flex flex-col"></div>
+            </div>
+          </div>
+
+          <div class="panel-foot">
+            <div class="gate" id="gateStatus">
+              <span class="dot"></span>
+              <span class="txt" id="gateText">Gate G-02 · 1 human action required</span>
+            </div>
+            <span class="artifact">artifact → PR #214</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- bottom flowchart -->
+    <section class="flow" aria-label="System process flowchart">
+      <div class="flow-head">
+        <div class="flow-title"><span class="sq"></span>System Process Flow <span class="text-[#5F5A75] normal-case tracking-normal">/ Ziki orchestration · 6 stages</span></div>
+        <div class="flow-meta">
+          <span class="legend"><i style="background:#34D399"></i>completed</span>
+          <span class="legend"><i style="background:#F59E0B"></i>active gate</span>
+          <span class="legend"><i style="background:#5F5FE1"></i>branched</span>
+          <span class="legend"><i style="background:#4A4560"></i>queued</span>
+          <span>·</span>
+          <span>C_eval threshold ≥ 0.75</span>
+        </div>
+      </div>
+      <div class="flow-scroll">
+        <div class="flow-row">
+          <div class="fnode done">
+            <div class="fidx"><span>01</span><span class="pill">TRIGGER</span></div>
+            <p>User Invokes <span class="tok">@Ziki</span> in Thread</p>
+            <span class="ftag">SLASH MENTION · THREAD 214</span>
+          </div>
+          <div class="farrow" aria-hidden="true">
+            <svg viewBox="0 0 26 10" preserveAspectRatio="none"><line x1="0" y1="5" x2="19" y2="5" stroke="#3A3552" stroke-width="1" stroke-dasharray="2 2"/><path d="M18.5 1.6 24 5l-5.5 3.4" fill="none" stroke="#6E6EEA" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="fnode done">
+            <div class="fidx"><span>02</span><span class="pill">SCORING</span></div>
+            <p>Orchestrator Evaluates Task Complexity (<span class="tok">C_eval</span>)</p>
+            <span class="ftag">C_eval 0.82 · THRESHOLD 0.75</span>
+          </div>
+          <div class="farrow" aria-hidden="true">
+            <svg viewBox="0 0 26 10" preserveAspectRatio="none"><line x1="0" y1="5" x2="19" y2="5" stroke="#3A3552" stroke-width="1" stroke-dasharray="2 2"/><path d="M18.5 1.6 24 5l-5.5 3.4" fill="none" stroke="#6E6EEA" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="fnode canvas">
+            <div class="fidx"><span>03</span><span class="pill">BRANCH</span></div>
+            <p>If High Complexity → Launch Dynamic Workspace Canvas</p>
+            <span class="ftag">CANVAS #ZK-8821 · MOUNTED</span>
+          </div>
+          <div class="farrow" aria-hidden="true">
+            <svg viewBox="0 0 26 10" preserveAspectRatio="none"><line x1="0" y1="5" x2="19" y2="5" stroke="#3A3552" stroke-width="1" stroke-dasharray="2 2"/><path d="M18.5 1.6 24 5l-5.5 3.4" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="fnode gate">
+            <div class="fidx"><span>04</span><span class="pill">● ACTIVE</span></div>
+            <p>Pause &amp; Inspect Gate Triggered on Parameter Ambiguity</p>
+            <span class="ftag">GATE G-02 · PARAM envPath</span>
+          </div>
+          <div class="farrow" aria-hidden="true">
+            <svg viewBox="0 0 26 10" preserveAspectRatio="none"><line x1="0" y1="5" x2="19" y2="5" stroke="#3A3552" stroke-width="1" stroke-dasharray="2 2"/><path d="M18.5 1.6 24 5l-5.5 3.4" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="fnode human">
+            <div class="fidx"><span>05</span><span class="pill">HUMAN</span></div>
+            <p>Human Approves State Override</p>
+            <span class="ftag">AWAITING · 1 ACTION</span>
+          </div>
+          <div class="farrow" aria-hidden="true">
+            <svg viewBox="0 0 26 10" preserveAspectRatio="none"><line x1="0" y1="5" x2="19" y2="5" stroke="#3A3552" stroke-width="1" stroke-dasharray="2 2"/><path d="M18.5 1.6 24 5l-5.5 3.4" fill="none" stroke="#5F5FE1" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="fnode">
+            <div class="fidx"><span>06</span><span class="pill">QUEUED</span></div>
+            <p>Output Rendered &amp; Artifact Committed</p>
+            <span class="ftag">PATCH → PR #214</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------------------------------------------------------------
+     Data: channels, DMs and their feeds
+  --------------------------------------------------------------- */
+  var CHANNELS = {
+    "general-dev": {
+      title: "general-dev",
+      topic: "PR #214 · fix(env): resolve undefined VITE_SUPABASE_URL",
+      messages: [
+        { type: "msg", name: "Adaeze N.", initials: "AN", color: "#8B7CF6", time: "09:41",
+          text: "Morning all 👋 build 4821 is red again — the frontend bundle throws <code>VITE_SUPABASE_URL is undefined</code> at boot." },
+        { type: "msg", name: "Tunde A.", initials: "TA", color: "#D97706", time: "09:42",
+          text: "@Ziki can you take PR #214? It keeps failing on env resolution in <code>src/lib/env-urls.ts</code> — I think the fallback chain broke after the config refactor." },
+        { type: "ziki", name: "Ziki", initials: "✦", time: "09:42",
+          text: "On it. Parsed the PR diff, CI logs and dependency graph. C_eval = <code>0.82</code> → complexity <b>HIGH</b>. Opening a Dynamic Workspace Canvas so we can pause, inspect and approve state changes together.",
+          link: "Canvas #ZK-8821 · mounted" },
+        { type: "sys", text: "Ziki launched a Dynamic Workspace Canvas · human-in-the-loop gate enabled" },
+        { type: "msg", name: "Chidi K.", initials: "CK", color: "#059669", time: "09:44",
+          text: "Love this. The canvas is looping on the right — someone approve the path override once it stops on Step 2, then we rerun build 4821." },
+        { type: "msg", name: "Amara O.", initials: "AO", color: "#DB2777", time: "09:45",
+          text: "142 of us online and the build is still red 😅 @Ziki save us." },
+        { type: "own", name: "You", initials: "DA", time: "09:46",
+          text: "Stepping in — checking the env path in the canvas before we rerun." }
+      ]
+    },
+    "announcements": {
+      title: "announcements",
+      topic: "Cohort 15 · week 6 · demo day Friday 14:00 WAT",
+      messages: [
+        { type: "sys", text: "Adaeze pinned a message to #announcements" },
+        { type: "msg", name: "Adaeze N.", initials: "AN", color: "#8B7CF6", time: "08:10",
+          text: "Demo day is <b>Friday 14:00 WAT</b> — 8 minutes per team. Share your Ziki canvas in the thread before Thursday so reviewers can replay the run." },
+        { type: "msg", name: "Tunde A.", initials: "TA", color: "#D97706", time: "08:22",
+          text: "Reminder: keep agent runs under 30 seconds so the demo stays inside the time box. Pauses count as part of the run." },
+        { type: "msg", name: "Chidi K.", initials: "CK", color: "#059669", time: "08:31",
+          text: "Reviewers will look at how we handle the pause gate — that is the differentiator this week." }
+      ]
+    },
+    "backend-go": {
+      title: "backend-go",
+      topic: "Build 4821 · Go service green, web bundle failing upstream",
+      messages: [
+        { type: "msg", name: "Tunde A.", initials: "TA", color: "#D97706", time: "09:31",
+          text: "Backend has been green since #212. <code>go test ./...</code> passes locally. The failure is upstream in the web build." },
+        { type: "ziki", name: "Ziki", initials: "✦", time: "09:33",
+          text: "Cross-checked: <code>go test ./... — 118 tests, 2.4s</code>. No dependency drift inside <code>backend-go</code>. Root cause is not in this service." },
+        { type: "msg", name: "Adaeze N.", initials: "AN", color: "#8B7CF6", time: "09:35",
+          text: "So it is definitely the env resolver. @Ziki want the canvas on this thread too?" },
+        { type: "sys", text: "Agent idle · awaiting next @Ziki invocation" }
+      ]
+    },
+    "frontend-react": {
+      title: "frontend-react",
+      topic: "src/lib/env-urls.ts · hotfix branch fix/env-resolution",
+      messages: [
+        { type: "msg", name: "Amara O.", initials: "AO", color: "#DB2777", time: "09:24",
+          text: "The fallback chain in <code>env-urls.ts</code> assumes <code>import.meta.env</code> is populated before module init. It is not." },
+        { type: "msg", name: "Chidi K.", initials: "CK", color: "#059669", time: "09:26",
+          text: "React strict mode double-invokes the resolver in dev, which is exactly why only CI catches it." },
+        { type: "ziki", name: "Ziki", initials: "✦", time: "09:27",
+          text: "Two candidate resolution orders detected → ambiguity. Forcing a pause &amp; inspect gate before patching <code>src/lib/env-urls.ts</code>." },
+        { type: "msg", name: "Tunde A.", initials: "TA", color: "#D97706", time: "09:29",
+          text: "Good call. Do not guess the order — that is how we got build 4817." }
+      ]
+    },
+    "dm-tunde": {
+      title: "Tunde A.",
+      topic: "Direct message · Tunde A.",
+      isDM: true,
+      messages: [
+        { type: "msg", name: "Tunde A.", initials: "TA", color: "#D97706", time: "09:37",
+          text: "If Ziki pauses on the env path, ping me before approving — I want to check which order we shipped last week." },
+        { type: "own", name: "You", initials: "DA", time: "09:38",
+          text: "Will do. The canvas is open, I am reading Step 2 now." }
+      ]
+    },
+    "dm-amara": {
+      title: "Amara O.",
+      topic: "Direct message · Amara O.",
+      isDM: true,
+      messages: [
+        { type: "msg", name: "Amara O.", initials: "AO", color: "#DB2777", time: "09:39",
+          text: "Can you screenshot the paused card for the demo deck? The amber state is the story." },
+        { type: "own", name: "You", initials: "DA", time: "09:40",
+          text: "On it — sending the canvas view once the override is approved." }
+      ]
+    },
+    "dm-ziki": {
+      title: "Ziki Agent",
+      topic: "Direct message · Ziki Agent",
+      isDM: true,
+      messages: [
+        { type: "ziki", name: "Ziki", initials: "✦", time: "09:42",
+          text: "Canvas #ZK-8821 is live in #general-dev. Current gate: <code>envPath</code> ambiguity. I will hold Step 3 until you approve the override.",
+          link: "Open execution canvas" },
+        { type: "own", name: "You", initials: "DA", time: "09:43",
+          text: "Understood. Keep the patch staged, do not commit yet." }
+      ]
+    },
+    "dm-chidi": {
+      title: "Chidi K.",
+      topic: "Direct message · Chidi K.",
+      isDM: true,
+      messages: [
+        { type: "msg", name: "Chidi K.", initials: "CK", color: "#059669", time: "09:20",
+          text: "Reviewed PR #214 — logic is fine, config is the only risk. The canvas makes that obvious." },
+        { type: "own", name: "You", initials: "DA", time: "09:21",
+          text: "Agreed. We will approve the override jointly before the patch lands." }
+      ]
+    }
+  };
+
+  /* ---------------------------------------------------------------
+     Chat rendering
+  --------------------------------------------------------------- */
+  var feedEl = $("chatFeed");
+  var channelTitle = $("channelTitle");
+  var channelTopic = $("channelTopic");
+  var feedCount = $("feedCount");
+  var composerInput = $("composerInput");
+  var activeChannel = "general-dev";
+
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, function (ch) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+    });
+  }
+
+  function avatarHTML(initials, color) {
+    var bg = color || "#4A4560";
+    return '<span class="avatar" style="background:linear-gradient(145deg,' + bg + ',#221E33)">' + esc(initials) + "</span>";
+  }
+
+  function messageHTML(m) {
+    if (m.type === "sys") {
+      return '<div class="sys" data-text="' + esc(m.text) + '"><span class="spark">✦</span><span>' + esc(m.text) + "</span></div>";
+    }
+    if (m.type === "ziki") {
+      return '<div class="msg ziki" data-text="' + esc(m.name + " " + m.text) + '">' +
+        avatarHTML("✦") +
+        '<div class="msg-col"><div class="meta"><span class="name">Ziki</span>' +
+        '<span class="agent-badge">AGENT</span><span class="t">' + esc(m.time) + "</span></div>" +
+        '<div class="bubble">' + m.text +
+        (m.link ? '<div><button class="canvas-link" type="button" data-open-canvas="1">▣ ' + esc(m.link) + ' →</button></div>' : "") +
+        "</div></div></div>";
+    }
+    var own = m.type === "own";
+    return '<div class="msg' + (own ? " own" : "") + '" data-text="' + esc(m.name + " " + m.text) + '">' +
+      (own ? "" : avatarHTML(m.initials, m.color)) +
+      '<div class="msg-col"><div class="meta"><span class="name">' + esc(m.name) + "</span>" +
+      '<span class="t">' + esc(m.time) + "</span></div>" +
+      '<div class="bubble">' + m.text + "</div></div></div>";
+  }
+
+  function renderChannel(key, opts) {
+    var ch = CHANNELS[key] || CHANNELS["general-dev"];
+    activeChannel = key;
+    channelTitle.textContent = ch.title;
+    $("hashSign").style.display = ch.isDM ? "none" : "";
+    channelTopic.textContent = ch.topic;
+    composerInput.placeholder = "Message " + (ch.isDM ? ch.title : "#" + ch.title) + " — type @Ziki to invoke the agent";
+    feedEl.innerHTML = '<div class="date-rule">Today · Cohort 15</div>' +
+      ch.messages.map(messageHTML).join("") +
+      '<div class="typing" aria-hidden="true"><span>Amara is typing</span><i></i><i></i><i></i></div>';
+    feedCount.textContent = ch.messages.filter(function (m) { return m.type !== "sys"; }).length + " MESSAGES";
+    feedEl.scrollTop = feedEl.scrollHeight;
+    document.querySelectorAll(".chan[data-channel], .dm[data-channel]").forEach(function (btn) {
+      btn.classList.toggle("active", btn.getAttribute("data-channel") === key);
+    });
+    if (!opts || !opts.keepSearch) { $("globalSearch").value = ""; }
+  }
+
+  document.querySelectorAll("[data-channel]").forEach(function (btn) {
+    btn.addEventListener("click", function () { renderChannel(btn.getAttribute("data-channel")); });
+  });
+
+  feedEl.addEventListener("click", function (event) {
+    var link = event.target.closest("[data-open-canvas]");
+    if (!link) return;
+    setCanvas(true);
+    $("canvasPanel").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    var card = $("step2Card");
+    card.style.transition = "box-shadow .25s";
+    card.style.boxShadow = "0 0 0 5px rgba(245,158,11,.22), 0 18px 34px -26px rgba(245,158,11,.9)";
+    setTimeout(function () { card.style.boxShadow = ""; }, 900);
+  });
+
+  /* ---------------------------------------------------------------
+     Composer (real local messages, @Ziki mention gets a stub reply)
+  --------------------------------------------------------------- */
+  function nowLabel() {
+    var total = mockClockBase + Math.floor(st.elapsed);
+    var h = Math.floor(total / 3600) % 24;
+    var m = Math.floor((total % 3600) / 60);
+    return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+  }
+
+  function appendBubble(m) {
+    var typing = feedEl.querySelector(".typing");
+    var wrapper = document.createElement("div");
+    wrapper.innerHTML = messageHTML(m);
+    var node = wrapper.firstElementChild;
+    feedEl.insertBefore(node, typing || null);
+    feedEl.scrollTop = feedEl.scrollHeight;
+    var ch = CHANNELS[activeChannel];
+    ch.messages.push(m);
+    feedCount.textContent = ch.messages.filter(function (x) { return x.type !== "sys"; }).length + " MESSAGES";
+  }
+
+  $("composerForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+    var value = composerInput.value.trim();
+    if (!value) return;
+    appendBubble({ type: "own", name: "You", initials: "DA", time: nowLabel(), text: esc(value) });
+    composerInput.value = "";
+    if (/@ziki/i.test(value)) {
+      setTimeout(function () {
+        appendBubble({ type: "ziki", name: "Ziki", initials: "✦", time: nowLabel(),
+          text: "Queued for evaluation. Current canvas gate G-02 is still awaiting a human override — I will not mutate <code>env-urls.ts</code> until it clears.",
+          link: "Canvas #ZK-8821 · paused" });
+        logEvent("Mention received · queued behind gate G-02", true);
+      }, 700);
+    }
+  });
+
+  /* ---------------------------------------------------------------
+     Search
+  --------------------------------------------------------------- */
+  var searchEl = $("globalSearch");
+  function applySearch() {
+    var q = searchEl.value.trim().toLowerCase();
+    document.querySelectorAll(".chan, .dm").forEach(function (btn) {
+      if (btn.classList.contains("active")) { btn.style.display = ""; return; }
+      btn.style.display = !q || btn.textContent.toLowerCase().indexOf(q) !== -1 ? "" : "none";
+    });
+    var visible = 0;
+    feedEl.querySelectorAll(".msg, .sys").forEach(function (node) {
+      var text = (node.getAttribute("data-text") || node.textContent || "").toLowerCase();
+      var match = !q || text.indexOf(q) !== -1;
+      node.style.display = match ? "" : "none";
+      if (match) visible += 1;
+    });
+    var empty = feedEl.querySelector(".search-empty");
+    if (q && visible === 0) {
+      if (!empty) {
+        empty = document.createElement("div");
+        empty.className = "search-empty sys";
+        feedEl.appendChild(empty);
+      }
+      empty.innerHTML = '<span class="spark">⌕</span><span>No messages match “' + esc(searchEl.value.trim()) + '” in this channel.</span>';
+    } else if (empty) {
+      empty.remove();
+    }
+  }
+  searchEl.addEventListener("input", applySearch);
+  searchEl.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") { searchEl.value = ""; applySearch(); searchEl.blur(); }
+  });
+  document.addEventListener("keydown", function (event) {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      searchEl.focus();
+      searchEl.select();
+    }
+  });
+
+  /* ---------------------------------------------------------------
+     Canvas toggle
+  --------------------------------------------------------------- */
+  var panel = $("canvasPanel");
+  var toggle = $("canvasToggle");
+  function setCanvas(open) {
+    panel.classList.toggle("collapsed", !open);
+    toggle.setAttribute("aria-pressed", open ? "true" : "false");
+    $("canvasToggleState").textContent = open ? "[Active]" : "[Off]";
+    if (open) { panel.removeAttribute("inert"); } else { panel.setAttribute("inert", ""); }
+  }
+  toggle.addEventListener("click", function () {
+    setCanvas(panel.classList.contains("collapsed"));
+  });
+
+  /* ---------------------------------------------------------------
+     Execution state machine
+  --------------------------------------------------------------- */
+  var st = { running: false, progress: 66, target: 66, elapsed: 4.2, approved: false, rewound: false };
+
+  var progressBar = $("progressBar");
+  var progressPct = $("progressPct");
+  var progressBarEl = $("progressBarEl");
+  var sessionTimer = $("sessionTimer");
+  var execState = $("execState");
+  var pauseResume = $("pauseResume");
+  var pauseLabel = $("pauseLabel");
+  var pauseIcon = $("pauseIcon");
+  var step2Badge = $("step2Badge");
+  var step2Card = $("step2Card");
+  var step3Card = $("step3Card");
+  var step3Badge = $("step3Badge");
+  var gateStatus = $("gateStatus");
+  var gateText = $("gateText");
+  var overrideInput = $("overrideInput");
+  var overrideNote = $("overrideNote");
+  var approveBtn = $("approveBtn");
+  var eventLog = $("eventLog");
+  var eventCount = $("eventCount");
+
+  var DEFAULT_PATH = "'src/lib/env-urls.ts'";
+
+  function fmtTime(seconds) {
+    var m = Math.floor(seconds / 60);
+    var s = seconds % 60;
+    return String(m).padStart(2, "0") + ":" + s.toFixed(1).padStart(4, "0") + "s";
+  }
+
+  var mockClockBase = 9 * 3600 + 46 * 60 + 38;
+  function stamp() {
+    var total = mockClockBase + Math.floor(st.elapsed);
+    var h = Math.floor(total / 3600) % 24;
+    var m = Math.floor((total % 3600) / 60);
+    var s = total % 60;
+    return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+  }
+
+  var events = [];
+  function logEvent(text, fresh) {
+    events.unshift({ ts: stamp(), text: text, fresh: !!fresh });
+    events = events.slice(0, 2);
+    eventLog.innerHTML = events.map(function (e) {
+      return '<div class="event' + (e.fresh ? " fresh" : "") + '"><span class="ts">' + e.ts + '</span><span class="dot"></span><span>' + esc(e.text) + "</span></div>";
+    }).join("");
+    eventCount.textContent = String(events.length);
+  }
+
+  function paint() {
+    var pct = Math.round(st.progress);
+    progressBar.style.width = st.progress + "%";
+    setText(progressPct, String(pct));
+    if (progressBarEl.getAttribute("aria-valuenow") !== String(pct)) {
+      progressBarEl.setAttribute("aria-valuenow", String(pct));
+    }
+    setText(sessionTimer, fmtTime(st.elapsed));
+
+    toggleRunningUI();
+  }
+
+  function setText(el, value) {
+    if (el.textContent !== value) el.textContent = value;
+  }
+  function setBadge(text, cls) {
+    setText(step2Badge, text);
+    if (step2Badge.className !== cls) step2Badge.className = cls;
+  }
+
+  function toggleRunningUI() {
+    if (st.running) {
+      execState.classList.add("running");
+      setText(execState, "RUNNING");
+      setText(pauseLabel, "Pause");
+      if (pauseIcon.getAttribute("d") !== "M5 3.5h2.2v9H5zM8.8 3.5H11v9H8.8z") {
+        pauseIcon.setAttribute("d", "M5 3.5h2.2v9H5zM8.8 3.5H11v9H8.8z");
+      }
+      if (st.approved) setBadge("OVERRIDE APPROVED — RESUMING", "card-badge green");
+      else setBadge("RUNNING · STEP 2 OF 3", "card-badge amber");
+    } else {
+      execState.classList.remove("running");
+      setText(execState, "PAUSED");
+      setText(pauseLabel, "Resume");
+      if (pauseIcon.getAttribute("d") !== "M5 3.5 12 8l-7 4.5v-9Z") {
+        pauseIcon.setAttribute("d", "M5 3.5 12 8l-7 4.5v-9Z");
+      }
+      if (st.rewound) setBadge("REWOUND — STEP-BACK", "card-badge indigo");
+      else if (st.approved) setBadge("OVERRIDE APPROVED — READY", "card-badge green");
+      else setBadge("PAUSED BY USER / AWAITING INPUT", "card-badge amber");
+    }
+    pauseResume.setAttribute("aria-pressed", st.running ? "true" : "false");
+  }
+
+  var lastFrame = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.2, Math.max(0, (now - lastFrame) / 1000));
+    lastFrame = now;
+    if (st.running) {
+      st.elapsed += dt;
+      if (st.progress < st.target) {
+        st.progress = Math.min(st.target, st.progress + dt * 1.6);
+      }
+    }
+    paint();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  function setRunning(run) {
+    st.running = run;
+    if (run) {
+      st.rewound = false;
+      st.target = st.approved ? 92 : Math.max(74, st.progress);
+      if (st.progress >= st.target) { st.target = Math.min(100, st.progress + 0.6); }
+      gateText.textContent = st.approved
+        ? "Gate cleared · override committed to canvas state"
+        : "Step 2 running · gate G-02 held open";
+      logEvent("Step 2 resumed · inspecting dependency configuration", true);
+    } else {
+      gateText.textContent = st.approved
+        ? "Gate cleared · override approved by human"
+        : "Gate G-02 · 1 human action required";
+      logEvent("Paused by user · state preserved at " + Math.round(st.progress) + "%", true);
+    }
+    paint();
+  }
+
+  pauseResume.addEventListener("click", function () { setRunning(!st.running); });
+
+  $("stepBack").addEventListener("click", function () {
+    st.running = false;
+    st.approved = false;
+    st.rewound = true;
+    st.progress = 33;
+    st.target = 33;
+    overrideInput.value = DEFAULT_PATH;
+    overrideNote.textContent = "Override discarded · restored to checkpoint";
+    overrideNote.classList.remove("dirty");
+    approveBtn.textContent = "Approve override";
+    approveBtn.classList.remove("green");
+    approveBtn.classList.add("indigo");
+    step3Card.classList.remove("unlocked");
+    step3Badge.textContent = "PENDING APPROVAL";
+    step3Badge.className = "card-badge gray";
+    $("step3Tag").textContent = "Queued behind gate G-02";
+    gateStatus.classList.remove("cleared");
+    gateText.textContent = "Gate G-02 · rewound to Step 1 checkpoint";
+    logEvent("Step-back · checkpoint restored at end of Step 1 (33%)", true);
+    paint();
+  });
+
+  overrideInput.addEventListener("input", function () {
+    var dirty = overrideInput.value !== DEFAULT_PATH;
+    overrideNote.classList.toggle("dirty", dirty);
+    overrideNote.textContent = dirty ? "Staged change · awaiting human approval" : "Editable · staged for human approval";
+  });
+
+  approveBtn.addEventListener("click", function () {
+    st.approved = true;
+    st.rewound = false;
+    overrideNote.classList.remove("dirty");
+    overrideNote.textContent = "Approved · override committed to canvas state";
+    approveBtn.textContent = "Override approved ✓";
+    approveBtn.classList.remove("indigo");
+    approveBtn.classList.add("green");
+    step3Card.classList.add("unlocked");
+    step3Badge.textContent = "UNLOCKED · PENDING APPROVAL";
+    step3Badge.className = "card-badge indigo";
+    $("step3Tag").textContent = "Unlocked · awaiting Step 2 completion";
+    gateStatus.classList.add("cleared");
+    gateText.textContent = "Gate cleared · human approved state override";
+    logEvent("Human approved override: filepath = " + overrideInput.value, true);
+    if (!st.running) { setRunning(true); }
+  });
+
+  $("step1Toggle").addEventListener("click", function () {
+    var btn = $("step1Toggle");
+    var details = $("step1Details");
+    var open = btn.getAttribute("aria-expanded") === "true";
+    btn.setAttribute("aria-expanded", open ? "false" : "true");
+    details.hidden = open;
+  });
+
+  /* ---------------------------------------------------------------
+     Boot
+  --------------------------------------------------------------- */
+  renderChannel("general-dev");
+  logEvent("Canvas #ZK-8821 mounted · 3 steps staged");
+  logEvent("Step 1 completed in 0.4s · 2 build logs parsed");
+  logEvent("Paused: ambiguous envPath → awaiting human input", true);
+  paint();
+})();
+</script>
+</body>
+</html>
