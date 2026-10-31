@@ -260,6 +260,7 @@
     padding:2px 6px;border-radius:4px;border:1px solid rgba(245,158,11,.4);background:rgba(245,158,11,.1);color:#F7CE86;
   }
   .exec-chip.running{border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.1);color:#8CE9C5}
+  .exec-chip.complete{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.15);color:#A7F3D0}
 
   .card{background:var(--card);border:1px solid rgba(255,255,255,.075);border-radius:9px;padding:9px 10px;position:relative}
   .card.done{border-color:rgba(52,211,153,.24);background:linear-gradient(175deg,rgba(52,211,153,.055),rgba(20,17,31,0))}
@@ -270,6 +271,7 @@
   }
   .card.pending{border-style:dashed;border-color:rgba(255,255,255,.14);background:rgba(20,17,31,.5);opacity:.66}
   .card.pending.unlocked{border-color:rgba(139,135,255,.5);opacity:.85}
+  .card.compact .controls,.card.compact .field,.card.compact .field-foot,.card.compact .hint{display:none}
   .card-top{display:flex;align-items:flex-start;gap:8px}
   .step-icon{
     width:22px;height:22px;flex:0 0 22px;border-radius:6px;display:grid;place-items:center;margin-top:1px;
@@ -626,7 +628,7 @@
             <!-- step 2 -->
             <article class="card active" id="step2Card">
               <div class="card-top">
-                <span class="step-icon amber" aria-hidden="true">⚠</span>
+                <span class="step-icon amber" id="step2Icon" aria-hidden="true">⚠</span>
                 <span class="flex-1 min-w-0">
                   <span class="step-title block">Step 2: Inspect Dependency Configuration</span>
                 </span>
@@ -664,7 +666,7 @@
             <!-- step 3 -->
             <article class="card pending" id="step3Card" aria-disabled="true">
               <div class="card-top">
-                <span class="step-icon" aria-hidden="true">
+                <span class="step-icon" id="step3Icon" aria-hidden="true">
                   <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><rect x="3.5" y="7" width="9" height="6" rx="1.4" stroke="currentColor"/><path d="M5.5 7V5.4a2.5 2.5 0 0 1 5 0V7" stroke="currentColor"/></svg>
                 </span>
                 <span class="flex-1 min-w-0">
@@ -672,8 +674,13 @@
                 </span>
                 <span class="card-badge gray" id="step3Badge">PENDING APPROVAL</span>
               </div>
-              <div class="skeleton" aria-hidden="true"><i></i><i></i><i></i></div>
-              <div class="pending-tag"><span aria-hidden="true">◌</span><span id="step3Tag">Queued behind gate G-02</span></div>
+              <div class="skeleton" id="step3Skeleton" aria-hidden="true"><i></i><i></i><i></i></div>
+              <div class="pending-tag" id="step3TagRow"><span aria-hidden="true">◌</span><span id="step3Tag">Queued behind gate G-02</span></div>
+              <div class="details" id="step3Result" hidden>
+                <div class="detail"><span class="tick">✓</span><span><b>src/lib/env-urls.ts</b> — resolution order pinned · <b>8f3c1a2</b></span></div>
+                <div class="detail"><span class="tick">✓</span><span>Artifact committed to <b>PR #214</b> · canvas state sealed</span></div>
+              </div>
+              <button class="btn ghost" id="replayBtn" type="button" hidden style="margin:7px 0 0 30px">↺ Run canvas again</button>
             </article>
 
             <!-- events -->
@@ -733,7 +740,7 @@
           <div class="farrow" aria-hidden="true">
             <svg viewBox="0 0 26 10" preserveAspectRatio="none"><line x1="0" y1="5" x2="19" y2="5" stroke="#3A3552" stroke-width="1" stroke-dasharray="2 2"/><path d="M18.5 1.6 24 5l-5.5 3.4" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <div class="fnode gate">
+          <div class="fnode gate" id="flowGate">
             <div class="fidx"><span>04</span><span class="pill">● ACTIVE</span></div>
             <p>Pause &amp; Inspect Gate Triggered on Parameter Ambiguity</p>
             <span class="ftag">GATE G-02 · PARAM envPath</span>
@@ -741,18 +748,18 @@
           <div class="farrow" aria-hidden="true">
             <svg viewBox="0 0 26 10" preserveAspectRatio="none"><line x1="0" y1="5" x2="19" y2="5" stroke="#3A3552" stroke-width="1" stroke-dasharray="2 2"/><path d="M18.5 1.6 24 5l-5.5 3.4" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <div class="fnode human">
+          <div class="fnode human" id="flowHuman">
             <div class="fidx"><span>05</span><span class="pill">HUMAN</span></div>
             <p>Human Approves State Override</p>
-            <span class="ftag">AWAITING · 1 ACTION</span>
+            <span class="ftag" id="flowHumanTag">AWAITING · 1 ACTION</span>
           </div>
           <div class="farrow" aria-hidden="true">
             <svg viewBox="0 0 26 10" preserveAspectRatio="none"><line x1="0" y1="5" x2="19" y2="5" stroke="#3A3552" stroke-width="1" stroke-dasharray="2 2"/><path d="M18.5 1.6 24 5l-5.5 3.4" fill="none" stroke="#5F5FE1" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <div class="fnode">
+          <div class="fnode" id="flowOutput">
             <div class="fidx"><span>06</span><span class="pill">QUEUED</span></div>
             <p>Output Rendered &amp; Artifact Committed</p>
-            <span class="ftag">PATCH → PR #214</span>
+            <span class="ftag" id="flowOutputTag">PATCH → PR #214</span>
           </div>
         </div>
       </div>
@@ -1049,7 +1056,20 @@
   /* ---------------------------------------------------------------
      Execution state machine
   --------------------------------------------------------------- */
-  var st = { running: false, progress: 66, target: 66, elapsed: 4.2, approved: false, rewound: false };
+  var GATE_HOLD = 74;
+  var STEP2_END = 88;
+  var STEP3_END = 100;
+
+  var st = {
+    running: false,
+    progress: 66,
+    elapsed: 4.2,
+    phase: "step2", /* step2 -> step3 -> done */
+    approved: false,
+    rewound: false,
+    held: false,
+    step2At: 0
+  };
 
   var progressBar = $("progressBar");
   var progressPct = $("progressPct");
@@ -1070,8 +1090,24 @@
   var approveBtn = $("approveBtn");
   var eventLog = $("eventLog");
   var eventCount = $("eventCount");
+  var step2Icon = $("step2Icon");
+  var step3Icon = $("step3Icon");
+  var step3Skeleton = $("step3Skeleton");
+  var step3TagRow = $("step3TagRow");
+  var step3Result = $("step3Result");
+  var replayBtn = $("replayBtn");
+  var flowGate = $("flowGate");
+  var flowHuman = $("flowHuman");
+  var flowHumanTag = $("flowHumanTag");
+  var flowOutput = $("flowOutput");
+  var flowOutputTag = $("flowOutputTag");
 
   var DEFAULT_PATH = "'src/lib/env-urls.ts'";
+  var CHECK_SVG = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3.2 8.4 6.4 11.6 12.8 4.8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var LOCK_SVG = '<svg width="10" height="10" viewBox="0 0 16 16" fill="none"><rect x="3.5" y="7" width="9" height="6" rx="1.4" stroke="currentColor"/><path d="M5.5 7V5.4a2.5 2.5 0 0 1 5 0V7" stroke="currentColor"/></svg>';
+  var UNLOCK_SVG = '<svg width="10" height="10" viewBox="0 0 16 16" fill="none"><rect x="3.5" y="7" width="9" height="6" rx="1.4" stroke="currentColor"/><path d="M5.5 7V5.4a2.5 2.5 0 0 1 5 0" stroke="currentColor"/></svg>';
+  var PAUSE_D = "M5 3.5h2.2v9H5zM8.8 3.5H11v9H8.8z";
+  var PLAY_D = "M5 3.5 12 8l-7 4.5v-9Z";
 
   function fmtTime(seconds) {
     var m = Math.floor(seconds / 60);
@@ -1107,7 +1143,7 @@
     }
     setText(sessionTimer, fmtTime(st.elapsed));
 
-    toggleRunningUI();
+    syncControls();
   }
 
   function setText(el, value) {
@@ -1117,29 +1153,124 @@
     setText(step2Badge, text);
     if (step2Badge.className !== cls) step2Badge.className = cls;
   }
+  function setExec(text, cls) {
+    setText(execState, text);
+    var next = "exec-chip" + (cls ? " " + cls : "");
+    if (execState.className !== next) execState.className = next;
+  }
+  function setFlow(node, cls, pill, tagEl, tagText) {
+    if (node.className !== cls) node.className = cls;
+    var pillEl = node.querySelector(".pill");
+    if (pillEl) setText(pillEl, pill);
+    if (tagEl) setText(tagEl, tagText);
+  }
+  function flowIdle() {
+    setFlow(flowGate, "fnode gate", "● ACTIVE");
+    setFlow(flowHuman, "fnode human", "HUMAN", flowHumanTag, "AWAITING · 1 ACTION");
+    setFlow(flowOutput, "fnode", "QUEUED", flowOutputTag, "PATCH → PR #214");
+  }
+  function flowApproved() {
+    setFlow(flowGate, "fnode done", "CLEARED");
+    setFlow(flowHuman, "fnode done", "APPROVED", flowHumanTag, "OVERRIDE LOCKED IN");
+  }
 
-  function toggleRunningUI() {
-    if (st.running) {
-      execState.classList.add("running");
-      setText(execState, "RUNNING");
-      setText(pauseLabel, "Pause");
-      if (pauseIcon.getAttribute("d") !== "M5 3.5h2.2v9H5zM8.8 3.5H11v9H8.8z") {
-        pauseIcon.setAttribute("d", "M5 3.5h2.2v9H5zM8.8 3.5H11v9H8.8z");
-      }
-      if (st.approved) setBadge("OVERRIDE APPROVED — RESUMING", "card-badge green");
-      else setBadge("RUNNING · STEP 2 OF 3", "card-badge amber");
+  function syncControls() {
+    if (st.phase === "done") {
+      setExec("COMPLETE", "complete");
+      pauseResume.setAttribute("aria-pressed", "false");
+    } else if (st.running) {
+      setExec("RUNNING", "running");
+      pauseResume.setAttribute("aria-pressed", "true");
     } else {
-      execState.classList.remove("running");
-      setText(execState, "PAUSED");
-      setText(pauseLabel, "Resume");
-      if (pauseIcon.getAttribute("d") !== "M5 3.5 12 8l-7 4.5v-9Z") {
-        pauseIcon.setAttribute("d", "M5 3.5 12 8l-7 4.5v-9Z");
-      }
-      if (st.rewound) setBadge("REWOUND — STEP-BACK", "card-badge indigo");
-      else if (st.approved) setBadge("OVERRIDE APPROVED — READY", "card-badge green");
-      else setBadge("PAUSED BY USER / AWAITING INPUT", "card-badge amber");
+      setExec(st.rewound ? "REWOUND" : "PAUSED", "");
+      pauseResume.setAttribute("aria-pressed", "false");
     }
-    pauseResume.setAttribute("aria-pressed", st.running ? "true" : "false");
+
+    if (st.phase === "done") {
+      pauseResume.disabled = true;
+      setText(pauseLabel, "Complete");
+      if (pauseIcon.style.display !== "none") pauseIcon.style.display = "none";
+    } else {
+      pauseResume.disabled = false;
+      setText(pauseLabel, st.running ? "Pause" : "Resume");
+      if (pauseIcon.style.display === "none") pauseIcon.style.display = "";
+      var d = st.running ? PAUSE_D : PLAY_D;
+      if (pauseIcon.getAttribute("d") !== d) pauseIcon.setAttribute("d", d);
+    }
+
+    if (st.phase === "step2") {
+      if (st.running) {
+        if (st.approved) setBadge("OVERRIDE APPROVED — RESUMING", "card-badge green");
+        else setBadge("RUNNING · STEP 2 OF 3", "card-badge amber");
+      } else if (st.rewound) {
+        setBadge("REWOUND — STEP-BACK", "card-badge indigo");
+      } else if (st.held) {
+        setBadge("GATE HOLD · APPROVAL REQUIRED", "card-badge amber");
+      } else if (st.approved) {
+        setBadge("OVERRIDE APPROVED — READY", "card-badge green");
+      } else {
+        setBadge("PAUSED BY USER / AWAITING INPUT", "card-badge amber");
+      }
+      setText(step3Tag, st.approved ? "Unlocked · awaiting Step 2 completion" : "Queued behind gate G-02");
+    } else if (st.phase === "step3") {
+      setText(step3Tag, "Synthesizing patch · 1 file");
+    }
+  }
+
+  function holdAtGate() {
+    st.running = false;
+    st.held = true;
+    st.progress = GATE_HOLD;
+    gateText.textContent = "Gate G-02 · held at 74% — approval required";
+    logEvent("Gate G-02 held · approval required to cross 74%", true);
+  }
+
+  function finishStep2() {
+    var took = Math.max(0.6, st.elapsed - st.step2At).toFixed(1);
+    st.phase = "step3";
+    st.progress = STEP2_END;
+    step2Card.classList.remove("active");
+    step2Card.classList.add("done", "compact");
+    step2Icon.className = "step-icon ok";
+    step2Icon.innerHTML = CHECK_SVG;
+    setBadge("COMPLETED (" + took + "s)", "card-badge green");
+    overrideInput.disabled = true;
+
+    step3Card.classList.remove("pending", "unlocked");
+    step3Card.removeAttribute("aria-disabled");
+    step3Card.classList.add("active");
+    step3Icon.className = "step-icon amber";
+    step3Icon.innerHTML = '<span aria-hidden="true">⚙</span>';
+    step3Badge.textContent = "RUNNING · PATCH SYNTHESIS";
+    step3Badge.className = "card-badge amber";
+    setText(step3Tag, "Synthesizing patch · 1 file");
+
+    gateText.textContent = "Step 2 complete · step 3 running";
+    logEvent("Step 2 completed with human override · step 3 started", true);
+  }
+
+  function finishAll() {
+    st.running = false;
+    st.phase = "done";
+    st.progress = STEP3_END;
+
+    step3Card.classList.remove("active");
+    step3Card.classList.add("done");
+    step3Icon.className = "step-icon ok";
+    step3Icon.innerHTML = CHECK_SVG;
+    step3Badge.textContent = "COMPLETED · COMMITTED";
+    step3Badge.className = "card-badge green";
+    setText(step3Tag, "Patch committed · PR #214 ✓");
+    step3Skeleton.hidden = true;
+    step3TagRow.hidden = true;
+    step3Result.hidden = false;
+    replayBtn.hidden = false;
+
+    gateStatus.classList.add("cleared");
+    gateText.textContent = "Gate cleared · artifact committed to PR #214";
+    logEvent("Step 3 complete · patch generated for env-urls.ts", true);
+    logEvent("Artifact committed · 8f3c1a2 → PR #214", true);
+    setFlow(flowOutput, "fnode done", "COMMITTED", flowOutputTag, "PR #214 · SEALED");
   }
 
   var lastFrame = performance.now();
@@ -1148,8 +1279,14 @@
     lastFrame = now;
     if (st.running) {
       st.elapsed += dt;
-      if (st.progress < st.target) {
-        st.progress = Math.min(st.target, st.progress + dt * 1.6);
+      if (st.phase === "step2") {
+        var ceiling = st.approved ? STEP2_END : GATE_HOLD;
+        st.progress = Math.min(ceiling, st.progress + dt * (st.approved ? 2.6 : 1.6));
+        if (st.approved && st.progress >= STEP2_END) finishStep2();
+        else if (!st.approved && st.progress >= GATE_HOLD) holdAtGate();
+      } else if (st.phase === "step3") {
+        st.progress = Math.min(STEP3_END, st.progress + dt * 3.6);
+        if (st.progress >= STEP3_END) finishAll();
       }
     }
     paint();
@@ -1158,15 +1295,28 @@
   requestAnimationFrame(frame);
 
   function setRunning(run) {
+    if (st.phase === "done") return;
+    if (run && st.phase === "step2" && !st.approved && st.progress >= GATE_HOLD) {
+      st.held = true;
+      gateText.textContent = "Gate G-02 · blocked at 74% — approve override";
+      logEvent("Resume blocked · gate G-02 requires human approval", true);
+      paint();
+      return;
+    }
     st.running = run;
     if (run) {
       st.rewound = false;
-      st.target = st.approved ? 92 : Math.max(74, st.progress);
-      if (st.progress >= st.target) { st.target = Math.min(100, st.progress + 0.6); }
-      gateText.textContent = st.approved
-        ? "Gate cleared · override committed to canvas state"
-        : "Step 2 running · gate G-02 held open";
-      logEvent("Step 2 resumed · inspecting dependency configuration", true);
+      st.held = false;
+      st.step2At = st.elapsed;
+      if (st.phase === "step2") {
+        gateText.textContent = st.approved
+          ? "Gate cleared · override committed"
+          : "Step 2 running · gate G-02 held open";
+        logEvent(st.approved ? "Step 2 resumed with approved override" : "Step 2 resumed · inspecting dependency configuration", true);
+      } else {
+        gateText.textContent = "Step 3 running · generating optimized fix";
+        logEvent("Step 3 resumed · patch synthesis", true);
+      }
     } else {
       gateText.textContent = st.approved
         ? "Gate cleared · override approved by human"
@@ -1182,21 +1332,39 @@
     st.running = false;
     st.approved = false;
     st.rewound = true;
+    st.held = false;
+    st.phase = "step2";
     st.progress = 33;
-    st.target = 33;
+
+    step2Card.className = "card active";
+    step2Icon.className = "step-icon amber";
+    step2Icon.innerHTML = "⚠";
+
     overrideInput.value = DEFAULT_PATH;
+    overrideInput.disabled = false;
     overrideNote.textContent = "Override discarded · restored to checkpoint";
     overrideNote.classList.remove("dirty");
+
     approveBtn.textContent = "Approve override";
-    approveBtn.classList.remove("green");
-    approveBtn.classList.add("indigo");
-    step3Card.classList.remove("unlocked");
+    approveBtn.disabled = false;
+    approveBtn.className = "btn indigo";
+
+    step3Card.className = "card pending";
+    step3Card.setAttribute("aria-disabled", "true");
+    step3Icon.className = "step-icon";
+    step3Icon.innerHTML = LOCK_SVG;
     step3Badge.textContent = "PENDING APPROVAL";
     step3Badge.className = "card-badge gray";
-    $("step3Tag").textContent = "Queued behind gate G-02";
+    setText(step3Tag, "Queued behind gate G-02");
+    step3Skeleton.hidden = false;
+    step3TagRow.hidden = false;
+    step3Result.hidden = true;
+    replayBtn.hidden = true;
+
     gateStatus.classList.remove("cleared");
     gateText.textContent = "Gate G-02 · rewound to Step 1 checkpoint";
     logEvent("Step-back · checkpoint restored at end of Step 1 (33%)", true);
+    flowIdle();
     paint();
   });
 
@@ -1207,21 +1375,69 @@
   });
 
   approveBtn.addEventListener("click", function () {
+    if (st.phase === "done") return;
     st.approved = true;
     st.rewound = false;
+    st.held = false;
     overrideNote.classList.remove("dirty");
     overrideNote.textContent = "Approved · override committed to canvas state";
     approveBtn.textContent = "Override approved ✓";
-    approveBtn.classList.remove("indigo");
-    approveBtn.classList.add("green");
-    step3Card.classList.add("unlocked");
-    step3Badge.textContent = "UNLOCKED · PENDING APPROVAL";
-    step3Badge.className = "card-badge indigo";
-    $("step3Tag").textContent = "Unlocked · awaiting Step 2 completion";
+    approveBtn.disabled = true;
+    approveBtn.className = "btn green";
+    if (st.phase === "step2") {
+      step3Card.classList.add("unlocked");
+      step3Icon.innerHTML = UNLOCK_SVG;
+      step3Badge.textContent = "UNLOCKED · PENDING APPROVAL";
+      step3Badge.className = "card-badge indigo";
+      setText(step3Tag, "Unlocked · awaiting Step 2 completion");
+    }
     gateStatus.classList.add("cleared");
     gateText.textContent = "Gate cleared · human approved state override";
     logEvent("Human approved override: filepath = " + overrideInput.value, true);
-    if (!st.running) { setRunning(true); }
+    flowApproved();
+    if (!st.running) setRunning(true);
+    paint();
+  });
+
+  $("replayBtn").addEventListener("click", function () {
+    mockClockBase += Math.max(0, Math.floor(st.elapsed) - 4);
+    st.running = false;
+    st.progress = 66;
+    st.elapsed = 4.2;
+    st.phase = "step2";
+    st.approved = false;
+    st.rewound = false;
+    st.held = false;
+    st.step2At = 0;
+
+    step2Card.className = "card active";
+    step2Icon.className = "step-icon amber";
+    step2Icon.innerHTML = "⚠";
+    overrideInput.value = DEFAULT_PATH;
+    overrideInput.disabled = false;
+    overrideNote.textContent = "Editable · staged for human approval";
+    overrideNote.classList.remove("dirty");
+    approveBtn.textContent = "Approve override";
+    approveBtn.disabled = false;
+    approveBtn.className = "btn indigo";
+
+    step3Card.className = "card pending";
+    step3Card.setAttribute("aria-disabled", "true");
+    step3Icon.className = "step-icon";
+    step3Icon.innerHTML = LOCK_SVG;
+    step3Badge.textContent = "PENDING APPROVAL";
+    step3Badge.className = "card-badge gray";
+    setText(step3Tag, "Queued behind gate G-02");
+    step3Skeleton.hidden = false;
+    step3TagRow.hidden = false;
+    step3Result.hidden = true;
+    replayBtn.hidden = true;
+
+    gateStatus.classList.remove("cleared");
+    gateText.textContent = "Gate G-02 · 1 human action required";
+    logEvent("Canvas reset · replay armed at gate G-02", true);
+    flowIdle();
+    paint();
   });
 
   $("step1Toggle").addEventListener("click", function () {
