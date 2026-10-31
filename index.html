@@ -245,7 +245,10 @@
   .panel-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#fff;letter-spacing:-.005em}
   .panel-title .z{width:19px;height:19px;border-radius:6px;display:grid;place-items:center;background:linear-gradient(145deg,#7C7CFF,#4A3FC8);font-size:10px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
   .panel-sub{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:5px;font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:#8A85A4}
-  .panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:10px 13px 11px;display:flex;flex-direction:column;gap:6px}
+  .panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:10px 13px 11px;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+  .panel-body::-webkit-scrollbar{width:6px}
+  .panel-body::-webkit-scrollbar-track{background:transparent}
+  .panel-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:99px}
 
   .progress-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
   .eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8E89A8}
@@ -409,6 +412,7 @@
   @media (max-width:640px){
     .chrome .urlbar,.chrome .chrome-tools{display:none}
     .tab{max-width:230px;overflow:hidden}
+    .topbar .live-chip{display:none}
   }
 </style>
 </head>
@@ -417,11 +421,14 @@
 
   <!-- page annotation bar -->
   <div class="topbar">
-    <div class="flex items-center gap-2.5 shrink-0">
+    <div class="flex items-center gap-2.5 min-w-0">
       <div class="brandmark">Z</div>
-      <div class="leading-tight">
+      <div class="leading-tight min-w-0">
         <div class="text-[11.5px] font-semibold text-[#EDEBF7]">Zedu Design Lab</div>
         <div class="mono text-[8.5px] tracking-[0.12em] text-[#7E7995] uppercase">Ziki Dynamic Canvas · Wireframe v1.2</div>
+        <div class="mt-1 max-w-[470px] text-[9.5px] leading-snug text-[#A9A4C2]">
+          <span class="font-semibold text-[#CFCBFF]">How it works:</span> Ziki stops when it is unsure. You fix the file path, approve, and it continues.
+        </div>
       </div>
     </div>
     <div class="spec-row">
@@ -504,20 +511,20 @@
 
           <div class="side-label" style="margin-top:12px"><span>Direct messages</span><span>4</span></div>
           <button class="dm" type="button" data-channel="dm-tunde">
-            <span class="av" style="background:linear-gradient(145deg,#F0A35E,#C2670B)">TA</span>
-            <span class="nm">Tunde A.</span><span class="unread">2</span>
+            <span class="av" style="background:linear-gradient(145deg,#F0A35E,#C2670B)">MK</span>
+            <span class="nm">Mark</span><span class="unread">2</span>
           </button>
           <button class="dm" type="button" data-channel="dm-amara">
-            <span class="av" style="background:linear-gradient(145deg,#F472B6,#BE185D)">AO</span>
-            <span class="nm">Amara O.</span><span class="unread">1</span>
+            <span class="av" style="background:linear-gradient(145deg,#F472B6,#BE185D)">DV</span>
+            <span class="nm">Dave</span><span class="unread">1</span>
           </button>
           <button class="dm" type="button" data-channel="dm-ziki">
             <span class="av" style="background:linear-gradient(145deg,#7C7CFF,#4A3FC8)">✦</span>
             <span class="nm">Ziki Agent</span><span class="live-tag">CANVAS</span>
           </button>
           <button class="dm" type="button" data-channel="dm-chidi">
-            <span class="av" style="background:linear-gradient(145deg,#34D399,#047857)">CK</span>
-            <span class="nm">Chidi K.</span><span class="unread">5</span>
+            <span class="av" style="background:linear-gradient(145deg,#34D399,#047857)">SN</span>
+            <span class="nm">Snow</span><span class="unread">5</span>
           </button>
 
           <div class="side-label" style="margin-top:12px"><span>Active threads</span><span>2</span></div>
@@ -534,9 +541,9 @@
         </div>
 
         <div class="side-foot">
-          <div class="me">DA</div>
+          <div class="me">PA</div>
           <div class="min-w-0 leading-tight">
-            <div class="text-[11px] font-medium text-[#D8D4E8] truncate">Deborah A.</div>
+            <div class="text-[11px] font-medium text-[#D8D4E8] truncate">Pulse Analytics</div>
             <div class="text-[9px] text-[#34D399] flex items-center gap-1"><span style="width:4px;height:4px;border-radius:99px;background:#34D399;display:block"></span>Ziki online</div>
           </div>
           <span class="ml-auto text-[#6F6A8A] text-[13px]">⚙</span>
@@ -784,15 +791,15 @@
       messages: [
         { type: "msg", name: "Adaeze N.", initials: "AN", color: "#8B7CF6", time: "09:41",
           text: "Morning all 👋 build 4821 is red again — the frontend bundle throws <code>VITE_SUPABASE_URL is undefined</code> at boot." },
-        { type: "msg", name: "Tunde A.", initials: "TA", color: "#D97706", time: "09:42",
+        { type: "msg", name: "Mark", initials: "MK", color: "#D97706", time: "09:42",
           text: "@Ziki can you take PR #214? It keeps failing on env resolution in <code>src/lib/env-urls.ts</code> — I think the fallback chain broke after the config refactor." },
         { type: "ziki", name: "Ziki", initials: "✦", time: "09:42",
           text: "On it. Parsed the PR diff, CI logs and dependency graph. C_eval = <code>0.82</code> → complexity <b>HIGH</b>. Opening a Dynamic Workspace Canvas so we can pause, inspect and approve state changes together.",
           link: "Canvas #ZK-8821 · mounted" },
         { type: "sys", text: "Ziki launched a Dynamic Workspace Canvas · human-in-the-loop gate enabled" },
-        { type: "msg", name: "Chidi K.", initials: "CK", color: "#059669", time: "09:44",
+        { type: "msg", name: "Snow", initials: "SN", color: "#059669", time: "09:44",
           text: "Love this. The canvas is looping on the right — someone approve the path override once it stops on Step 2, then we rerun build 4821." },
-        { type: "msg", name: "Amara O.", initials: "AO", color: "#DB2777", time: "09:45",
+        { type: "msg", name: "Dave", initials: "DV", color: "#DB2777", time: "09:45",
           text: "142 of us online and the build is still red 😅 @Ziki save us." },
         { type: "own", name: "You", initials: "DA", time: "09:46",
           text: "Stepping in — checking the env path in the canvas before we rerun." }
@@ -805,9 +812,9 @@
         { type: "sys", text: "Adaeze pinned a message to #announcements" },
         { type: "msg", name: "Adaeze N.", initials: "AN", color: "#8B7CF6", time: "08:10",
           text: "Demo day is <b>Friday 14:00 WAT</b> — 8 minutes per team. Share your Ziki canvas in the thread before Thursday so reviewers can replay the run." },
-        { type: "msg", name: "Tunde A.", initials: "TA", color: "#D97706", time: "08:22",
+        { type: "msg", name: "Mark", initials: "MK", color: "#D97706", time: "08:22",
           text: "Reminder: keep agent runs under 30 seconds so the demo stays inside the time box. Pauses count as part of the run." },
-        { type: "msg", name: "Chidi K.", initials: "CK", color: "#059669", time: "08:31",
+        { type: "msg", name: "Snow", initials: "SN", color: "#059669", time: "08:31",
           text: "Reviewers will look at how we handle the pause gate — that is the differentiator this week." }
       ]
     },
@@ -815,7 +822,7 @@
       title: "backend-go",
       topic: "Build 4821 · Go service green, web bundle failing upstream",
       messages: [
-        { type: "msg", name: "Tunde A.", initials: "TA", color: "#D97706", time: "09:31",
+        { type: "msg", name: "Mark", initials: "MK", color: "#D97706", time: "09:31",
           text: "Backend has been green since #212. <code>go test ./...</code> passes locally. The failure is upstream in the web build." },
         { type: "ziki", name: "Ziki", initials: "✦", time: "09:33",
           text: "Cross-checked: <code>go test ./... — 118 tests, 2.4s</code>. No dependency drift inside <code>backend-go</code>. Root cause is not in this service." },
@@ -828,33 +835,33 @@
       title: "frontend-react",
       topic: "src/lib/env-urls.ts · hotfix branch fix/env-resolution",
       messages: [
-        { type: "msg", name: "Amara O.", initials: "AO", color: "#DB2777", time: "09:24",
+        { type: "msg", name: "Dave", initials: "DV", color: "#DB2777", time: "09:24",
           text: "The fallback chain in <code>env-urls.ts</code> assumes <code>import.meta.env</code> is populated before module init. It is not." },
-        { type: "msg", name: "Chidi K.", initials: "CK", color: "#059669", time: "09:26",
+        { type: "msg", name: "Snow", initials: "SN", color: "#059669", time: "09:26",
           text: "React strict mode double-invokes the resolver in dev, which is exactly why only CI catches it." },
         { type: "ziki", name: "Ziki", initials: "✦", time: "09:27",
           text: "Two candidate resolution orders detected → ambiguity. Forcing a pause &amp; inspect gate before patching <code>src/lib/env-urls.ts</code>." },
-        { type: "msg", name: "Tunde A.", initials: "TA", color: "#D97706", time: "09:29",
+        { type: "msg", name: "Mark", initials: "MK", color: "#D97706", time: "09:29",
           text: "Good call. Do not guess the order — that is how we got build 4817." }
       ]
     },
     "dm-tunde": {
-      title: "Tunde A.",
-      topic: "Direct message · Tunde A.",
+      title: "Mark",
+      topic: "Direct message · Mark",
       isDM: true,
       messages: [
-        { type: "msg", name: "Tunde A.", initials: "TA", color: "#D97706", time: "09:37",
+        { type: "msg", name: "Mark", initials: "MK", color: "#D97706", time: "09:37",
           text: "If Ziki pauses on the env path, ping me before approving — I want to check which order we shipped last week." },
         { type: "own", name: "You", initials: "DA", time: "09:38",
           text: "Will do. The canvas is open, I am reading Step 2 now." }
       ]
     },
     "dm-amara": {
-      title: "Amara O.",
-      topic: "Direct message · Amara O.",
+      title: "Dave",
+      topic: "Direct message · Dave",
       isDM: true,
       messages: [
-        { type: "msg", name: "Amara O.", initials: "AO", color: "#DB2777", time: "09:39",
+        { type: "msg", name: "Dave", initials: "DV", color: "#DB2777", time: "09:39",
           text: "Can you screenshot the paused card for the demo deck? The amber state is the story." },
         { type: "own", name: "You", initials: "DA", time: "09:40",
           text: "On it — sending the canvas view once the override is approved." }
@@ -873,11 +880,11 @@
       ]
     },
     "dm-chidi": {
-      title: "Chidi K.",
-      topic: "Direct message · Chidi K.",
+      title: "Snow",
+      topic: "Direct message · Snow",
       isDM: true,
       messages: [
-        { type: "msg", name: "Chidi K.", initials: "CK", color: "#059669", time: "09:20",
+        { type: "msg", name: "Snow", initials: "SN", color: "#059669", time: "09:20",
           text: "Reviewed PR #214 — logic is fine, config is the only risk. The canvas makes that obvious." },
         { type: "own", name: "You", initials: "DA", time: "09:21",
           text: "Agreed. We will approve the override jointly before the patch lands." }
@@ -936,7 +943,7 @@
     composerInput.placeholder = "Message " + (ch.isDM ? ch.title : "#" + ch.title) + " — type @Ziki to invoke the agent";
     feedEl.innerHTML = '<div class="date-rule">Today · Cohort 15</div>' +
       ch.messages.map(messageHTML).join("") +
-      '<div class="typing" aria-hidden="true"><span>Amara is typing</span><i></i><i></i><i></i></div>';
+      '<div class="typing" aria-hidden="true"><span>Dave is typing</span><i></i><i></i><i></i></div>';
     feedCount.textContent = ch.messages.filter(function (m) { return m.type !== "sys"; }).length + " MESSAGES";
     feedEl.scrollTop = feedEl.scrollHeight;
     document.querySelectorAll(".chan[data-channel], .dm[data-channel]").forEach(function (btn) {
